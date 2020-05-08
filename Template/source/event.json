@@ -1,0 +1,211 @@
+{
+  "accountId": "831650818513",
+  "fragment": {
+    "Description": "Example Macro Template.",
+    "Parameters": {
+      "GitHubUser": {
+        "Type": "String",
+        "Default": "ggiallo28"
+      },
+      "RepositoryName": {
+        "Type": "String",
+        "Default": "aws-cloudformation-macros"
+      },
+      "BranchName": {
+        "Type": "String",
+        "Default": "master"
+      },
+      "BucketName": {
+        "Type": "String",
+        "Default": "macro-template-default-831650818513-us-east-1"
+      },
+      "TemplateKey": {
+        "Type": "String",
+        "Default": "Template/sns-topics-template.yaml"
+      },
+      "TemplateTemplateKey": {
+        "Type": "String",
+        "Default": "template-example.yaml"
+      },
+      "Environment": {
+        "Type": "String",
+        "Default": "prod"
+      }
+    },
+    "Resources": {
+      "HighPriorityAlarm": {
+        "Type": "AWS::SNS::Topic",
+        "Properties": {
+          "TopicName": {
+            "Fn::Sub": "High-Priority-Alarm-${Environment}"
+          }
+        }
+      },
+      "SNSTopiInlineCondition": {
+        "Type": "Template::Git",
+        "Condition": "CreateResources",
+        "Properties": {
+          "Mode": "Inline",
+          "Provider": "Github",
+          "Repo": {
+            "Ref": "RepositoryName"
+          },
+          "Branch": {
+            "Ref": "BranchName"
+          },
+          "Path": {
+            "Ref": "TemplateKey"
+          },
+          "Owner": {
+            "Ref": "GitHubUser"
+          },
+          "Parameters": {
+            "Name": "sns-topic-template-codecommit-inline-stack-condition",
+            "Environment": {
+              "Ref": "Environment"
+            }
+          }
+        }
+      },
+      "SNSTopicNested": {
+        "Type": "Template::Git",
+        "Condition": "CreateResources",
+        "Properties": {
+          "Mode": "Nested",
+          "Provider": "Github",
+          "Repo": {
+            "Ref": "RepositoryName"
+          },
+          "Branch": {
+            "Ref": "BranchName"
+          },
+          "Path": {
+            "Ref": "TemplateKey"
+          },
+          "Owner": {
+            "Ref": "GitHubUser"
+          },
+          "Parameters": {
+            "Name": "sns-topic-template-github-nested-stack",
+            "Environment": {
+              "Ref": "Environment"
+            }
+          },
+          "NotificationARNs": [
+            {
+              "Ref": "SNSTopiInlineCondition.UrgentPriorityAlarm"
+            },
+            {
+              "Ref": "HighPriorityAlarm"
+            }
+          ],
+          "Tags": [
+            {
+              "Key": "Environment",
+              "Value": {
+                "Ref": "Environment"
+              }
+            },
+            {
+              "Key": "TopicName",
+              "Value": {
+                "Ref": "SNSTopiInlineCondition.UrgentPriorityAlarm.TopicName"
+              }
+            }
+          ],
+          "TimeoutInMinutes": 1,
+          "TemplateBucket": {
+            "Ref": "BucketName"
+          },
+          "TemplateKey": {
+            "Ref": "TemplateKey"
+          }
+        }
+      },
+      "SNSTopicNestedDefault": {
+        "Type": "Template::Git",
+        "Condition": "CreateResources",
+        "Properties": {
+          "Mode": "Nested",
+          "Provider": "Github",
+          "Repo": {
+            "Ref": "RepositoryName"
+          },
+          "Branch": {
+            "Ref": "BranchName"
+          },
+          "Path": {
+            "Ref": "TemplateKey"
+          },
+          "Owner": {
+            "Ref": "GitHubUser"
+          },
+          "Parameters": {
+            "Name": "sns-topic-template-github-nested-stack-default-bucket",
+            "Environment": {
+              "Ref": "Environment"
+            }
+          }
+        }
+      },
+      "SNSTopicS3": {
+        "Type": "Template::S3",
+        "Properties": {
+          "Mode": "Inline",
+          "Bucket": {
+            "Ref": "BucketName"
+          },
+          "Key": {
+            "Ref": "TemplateKey"
+          },
+          "Parameters": {
+            "Name": "sns-topic-template-s3-inline-stack",
+            "Environment": {
+              "Ref": "Environment"
+            }
+          }
+        }
+      },
+      "TemplateS3": {
+        "Type": "Template::S3",
+        "Properties": {
+          "Mode": "Inline",
+          "Bucket": {
+            "Ref": "BucketName"
+          },
+          "Key": {
+            "Ref": "TemplateTemplateKey"
+          },
+          "Parameters": {
+            "Environment": {
+              "Ref": "Environment"
+            }
+          }
+        }
+      }
+    },
+    "Conditions": {
+      "CreateResources": {
+        "Fn::Equals": [
+          {
+            "Ref": "Environment"
+          },
+          "prod"
+        ]
+      }
+    }
+  },
+  "transformId": "831650818513::Template",
+  "requestId": "c7fb26eb-9d51-4539-ac2f-3f7d83e5b014",
+  "region": "us-east-1",
+  "params": {},
+  "templateParameterValues": {
+    "GitHubUser": "ggiallo28",
+    "BucketName": "macro-template-default-831650818513-us-east-1",
+    "TemplateTemplateKey": "template-example.yaml",
+    "TemplateKey": "Template/sns-topics-template.yaml",
+    "Environment": "prod",
+    "RepositoryName": "aws-cloudformation-macros",
+    "BranchName": "master"
+  }
+}

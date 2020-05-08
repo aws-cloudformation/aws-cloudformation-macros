@@ -1,0 +1,90 @@
+Transform: AWS::Serverless-2016-10-31
+
+Resources:
+
+  DefaultBucket:
+    Type: AWS::S3::Bucket
+    Properties: 
+       BucketName: !Sub "macro-template-default-${AWS::AccountId}-${AWS::Region}"
+
+  TransformExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: 
+              - lambda.amazonaws.com
+            Action: 
+            - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/AWSCodeCommitFullAccess
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: 
+                - 'logs:*'
+                Resource: 'arn:aws:logs:*:*:*'
+
+  SimulatorExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: 
+              - lambda.amazonaws.com
+            Action: 
+            - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: 
+                - 'logs:*'
+                Resource: 'arn:aws:logs:*:*:*'
+
+  #SimulatorFunction:
+  #  Type: AWS::Serverless::Function
+  #  Properties:
+  #    Runtime: nodejs12.x
+  #    CodeUri: cfnsimulator/
+  #    Handler: index.handler
+  #    Role: !GetAtt SimulatorExecutionRole.Arn
+  #    Timeout: 300
+  #    Environment:
+  #      Variables:
+  #        REGION: !Ref AWS::Region
+  #        ACCOUNT: !Ref AWS::AccountId
+
+  MacroFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: python3.6
+      CodeUri: source/
+      Handler: macro.handler
+      Role: !GetAtt TransformExecutionRole.Arn
+      Timeout: 300
+      Layers: 
+        - !Sub arn:aws:lambda:${AWS::Region}:553035198032:layer:git:11
+      Environment:
+        Variables:
+          DEFAULT_BUCKET: !Ref DefaultBucket
+
+  Macro:
+    Type: AWS::CloudFormation::Macro
+    Properties:
+      Name: Template
+      FunctionName: !GetAtt MacroFunction.Arn

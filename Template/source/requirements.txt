@@ -1,0 +1,3 @@
+troposphere
+cfn-flip
+GitPython

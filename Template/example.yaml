@@ -1,0 +1,94 @@
+Transform: [Template]
+Description: Example Macro Template.
+
+Parameters:
+  GitHubUser:
+    Type: String
+    Default: ggiallo28
+  RepositoryName:
+    Type: String
+    Default: aws-cloudformation-macros
+  BranchName:
+    Type: String
+    Default: master
+  BucketName:
+    Type: String
+    Default: <example-bucket>
+  TemplateKey:
+    Type: String
+    Default: Template/sns-topics-template.yaml 
+  Environment:
+    Type: String
+    Default: dev
+
+Conditions: 
+  CreateResources: !Equals [ !Ref Environment, prod ]
+
+Resources:
+
+  HighPriorityAlarm:
+    Type: "AWS::SNS::Topic"
+    Properties: 
+      TopicName: !Sub High-Priority-Alarm-${Environment}
+
+  SNSTopiInlineCondition:
+    Type: Template::Git
+    Condition: CreateResources
+    Properties:
+      Mode: Nested
+      Provider: Github
+      Repo: !Ref RepositoryName
+      Branch: !Ref BranchName
+      Path: !Ref TemplateKey
+      Owner: !Ref GitHubUser
+      Parameters:
+        Name: 'sns-topic-template-codecommit-inline-stack-condition'
+        Environment: !Ref Environment
+
+  SNSTopicNested:
+    Type: Template::Git
+    Condition: CreateResources
+    Properties:
+      Mode: Nested
+      Provider: Github
+      Repo: !Ref RepositoryName
+      Branch: !Ref BranchName
+      Path: !Ref TemplateKey
+      Owner: !Ref GitHubUser
+      Parameters:
+        Name: 'sns-topic-template-github-nested-stack'
+        Environment: !Ref Environment
+      NotificationARNs:
+        - !Ref HighPriorityAlarm
+      Tags: 
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: TopicName
+          Value: !Ref HighPriorityAlarm
+      TimeoutInMinutes: 1
+      TemplateBucket: !Ref BucketName
+      TemplateKey: !Ref TemplateKey
+
+  SNSTopicNestedDefault:
+    Type: Template::Git
+    Condition: CreateResources
+    Properties:
+      Mode: Nested
+      Provider: Github
+      Repo: !Ref RepositoryName
+      Branch: !Ref BranchName
+      Path: !Ref TemplateKey
+      Owner: !Ref GitHubUser
+      Parameters:
+        Name: 'sns-topic-template-github-nested-stack-default-bucket'
+        Environment: !Ref Environment
+
+  SNSTopicS3:
+    Type: Template::S3
+    Properties:
+      Mode: Nested
+      Bucket: !Ref BucketName
+      Key: !Ref TemplateKey
+      Parameters:
+        Name: 'sns-topic-template-s3-inline-stack'
+        Environment: !Ref Environment

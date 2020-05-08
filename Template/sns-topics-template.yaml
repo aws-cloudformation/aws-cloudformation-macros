@@ -1,0 +1,74 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: SNS Topics for alarms
+Parameters:
+  Email:
+    Type: String
+    Default: "nmsek@hi2.in"
+  Name:
+    Type: String
+  Environment:
+    Type: String   
+
+Resources:
+
+  UrgentPriorityAlarm:
+    Type: "AWS::SNS::Topic"
+    Properties: 
+      DisplayName: !Sub ${Name}-Urgent-Priority-Alarm-${Environment}
+      Subscription:
+        - Endpoint: !Ref Email
+          Protocol: email
+      TopicName: !Sub ${Name}-Urgent-Priority-Alarm-${Environment}
+
+  HighPriorityAlarm:
+    Type: "AWS::SNS::Topic"
+    Properties: 
+      DisplayName: !Sub ${Name}-High-Priority-Alarm-${Environment}
+      Subscription:
+        - Endpoint: !Ref Email
+          Protocol: email
+      TopicName: !Sub ${Name}-High-Priority-Alarm-${Environment}
+
+  MediumPriorityAlarm:
+    Type: "AWS::SNS::Topic"
+    Properties: 
+      DisplayName: !Sub ${Name}-Medium-Priority-Alarm-${Environment}
+      Subscription:
+        - Endpoint: !Ref Email
+          Protocol: email
+      TopicName: !Sub ${Name}-Medium-Priority-Alarm-${Environment}
+
+  LowPriorityAlarm:
+    Type: "AWS::SNS::Topic"
+    Properties: 
+      DisplayName: !Sub ${Name}-Low-Priority-Alarm-${Environment}
+      Subscription:
+        - Endpoint: !Ref Email
+          Protocol: email
+      TopicName: !Sub ${Name}-Low-Priority-Alarm-${Environment}
+
+Outputs:
+  UrgentPriorityAlarm: 
+    Description: Urgent priority SNS topic ARN 
+    Value: !Ref UrgentPriorityAlarm
+    Export:
+      Name:
+        !Sub "${AWS::StackName}-urgent-${Environment}"
+  HighPriorityAlarm: 
+    Description: High priority SNS topic ARN 
+    Value: !Ref HighPriorityAlarm
+    Export:
+      Name:
+        !Sub "${AWS::StackName}-high-${Environment}"
+  MediumPriorityAlarm: 
+    Description: Medium priority SNS topic ARN 
+    Value: !Ref MediumPriorityAlarm
+    Export:
+      Name:
+        !Sub "${AWS::StackName}-medium-${Environment}"
+  LowPriorityAlarm: 
+    Description: Low priority SNS topic ARN 
+    Value: !Ref LowPriorityAlarm
+    Export:
+      Name:
+        !Sub "${AWS::StackName}-low-${Environment}"
