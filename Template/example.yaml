@@ -11,15 +11,15 @@ Parameters:
   BranchName:
     Type: String
     Default: master
-  BucketName:
-    Type: String
-    Default: <example-bucket>
   TemplateKey:
     Type: String
-    Default: Template/sns-topics-template.yaml 
+    Default: Template/sns-topics-template.yaml
+  TemplatePrefix:
+    Type: String
+    Default: Template
   Environment:
     Type: String
-    Default: dev
+    Default: prod
 
 Conditions: 
   CreateResources: !Equals [ !Ref Environment, prod ]
@@ -33,9 +33,8 @@ Resources:
 
   SNSTopiInlineCondition:
     Type: Template::Git
-    Condition: CreateResources
     Properties:
-      Mode: Nested
+      Mode: Inline
       Provider: Github
       Repo: !Ref RepositoryName
       Branch: !Ref BranchName
@@ -47,7 +46,6 @@ Resources:
 
   SNSTopicNested:
     Type: Template::Git
-    Condition: CreateResources
     Properties:
       Mode: Nested
       Provider: Github
@@ -59,19 +57,21 @@ Resources:
         Name: 'sns-topic-template-github-nested-stack'
         Environment: !Ref Environment
       NotificationARNs:
+        - !Ref Template::SNSTopiInlineCondition::UrgentPriorityAlarm
         - !Ref HighPriorityAlarm
       Tags: 
         - Key: Environment
           Value: !Ref Environment
         - Key: TopicName
-          Value: !Ref HighPriorityAlarm
+          Value: !GetAtt Template::SNSTopiInlineCondition::UrgentPriorityAlarm.TopicName
       TimeoutInMinutes: 1
-      TemplateBucket: !Ref BucketName
-      TemplateKey: !Ref TemplateKey
+      TemplateBucket: !Ref Template::DefaultBucket
+      TemplatePrefix: !Ref TemplatePrefix
 
   SNSTopicNestedDefault:
     Type: Template::Git
     Condition: CreateResources
+    DependsOn: Template::SNSTopicNested
     Properties:
       Mode: Nested
       Provider: Github
@@ -81,14 +81,4 @@ Resources:
       Owner: !Ref GitHubUser
       Parameters:
         Name: 'sns-topic-template-github-nested-stack-default-bucket'
-        Environment: !Ref Environment
-
-  SNSTopicS3:
-    Type: Template::S3
-    Properties:
-      Mode: Nested
-      Bucket: !Ref BucketName
-      Key: !Ref TemplateKey
-      Parameters:
-        Name: 'sns-topic-template-s3-inline-stack'
         Environment: !Ref Environment

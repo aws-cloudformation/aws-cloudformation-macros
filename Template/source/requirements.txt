@@ -1,3 +1,6 @@
 troposphere
 cfn-flip
 GitPython
+python-gitlab
+requests
+awacs

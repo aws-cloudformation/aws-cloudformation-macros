@@ -7,7 +7,10 @@ Parameters:
   Name:
     Type: String
   Environment:
-    Type: String   
+    Type: String
+
+Conditions: 
+  CreateResources: !Equals [ !Ref Environment, prod ] 
 
 Resources:
 
@@ -48,25 +51,25 @@ Resources:
       TopicName: !Sub ${Name}-Low-Priority-Alarm-${Environment}
 
 Outputs:
-  UrgentPriorityAlarm: 
+  UrgentPriorityAlarmArn: 
     Description: Urgent priority SNS topic ARN 
     Value: !Ref UrgentPriorityAlarm
     Export:
       Name:
         !Sub "${AWS::StackName}-urgent-${Environment}"
-  HighPriorityAlarm: 
+  HighPriorityAlarmArn: 
     Description: High priority SNS topic ARN 
     Value: !Ref HighPriorityAlarm
     Export:
       Name:
         !Sub "${AWS::StackName}-high-${Environment}"
-  MediumPriorityAlarm: 
+  MediumPriorityAlarmArn: 
     Description: Medium priority SNS topic ARN 
     Value: !Ref MediumPriorityAlarm
     Export:
       Name:
         !Sub "${AWS::StackName}-medium-${Environment}"
-  LowPriorityAlarm: 
+  LowPriorityAlarmArn: 
     Description: Low priority SNS topic ARN 
     Value: !Ref LowPriorityAlarm
     Export:

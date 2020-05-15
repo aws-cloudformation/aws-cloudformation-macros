@@ -1,105 +1,64 @@
-import json, re
-import troposphere as tp
+from troposphere import AWSObject, AWSHelperFn, AWSProperty
+from troposphere import Tags, Ref, Join, GetAtt, Export, Template, Join
 from troposphere.template_generator import TemplateGenerator
-from resources import S3, Git
+from troposphere.validators import boolean, integer
+from troposphere import cloudformation
+import os
 
+BRANCH_DEFAULT = 'master'
 
-class TemplateLoader(TemplateGenerator):
-    __create_key = object()
-    __sub_regex = r"(\${[^}]+})"
+TEMPLATE_NAME_DEFAULT = 'template.yaml'
 
-    @classmethod
-    def loads(cls, json_string):
-        return TemplateLoader(cls.__create_key,
-                              cls._sub_to_join(json_string),
-                              CustomMembers=[S3, Git])
+ASSERT_MESSAGE = """Template format error: {} value in {} is invalid. 
+The value must not depend on any resources or imported values. 
+Check if Parameter exists."""
 
-    @classmethod
-    def init(cls):
-        return TemplateLoader.loads({
-            'Description': 'This template is the result of the merge.',
-            'Resources': {}
-        })
+DEFAULT_BUCKET = os.environ.get(
+    'DEFAULT_BUCKET', 'macro-template-default-831650818513-us-east-1')
 
-    @classmethod
-    def _sub_to_join(cls, template):
-        template_clone = json.loads(json.dumps(template))
-        cls._translate_value(template_clone)
-        return json.loads(
-            json.dumps(template_clone).replace('Fn::Sub', 'Fn::Join'))
+MACRO_NAME = 'Template'
 
-    @classmethod
-    def _translate_value(cls, template):
-        if type(template) == dict:
-            for key in template:
-                if key == 'Fn::Sub':
-                    try:
-                        split_list = [
-                            s for s in re.split(cls.__sub_regex, template[key])
-                            if len(s) > 0
-                        ]
-                    except TypeError:
-                        raise ('Error with', template[key], key)
-                    for index, value in enumerate(split_list):
-                        if re.match(cls.__sub_regex, value):
-                            split_list[index] = tp.Ref(value[2:-1]).data
-                    template[key] = ["", split_list]
-                cls._translate_value(template[key])
+MACRO_SEPARATOR = '::'
 
-    def __init__(self, create_key, cf_template=None, **kwargs):
-        assert(create_key == TemplateLoader.__create_key), \
-            "TemplateLoader objects must be created using TemplateLoader.loads or TemplateLoader.init"
-        super(TemplateLoader, self).__init__(cf_template, **kwargs)
-        self._to_replace = []
+MACRO_PREFIX = MACRO_NAME + MACRO_SEPARATOR
 
-    def __iter__(self):
-        fields = list(vars(self).keys())
-        for props in fields:
-            yield (props, getattr(self, props))
+setattr(TemplateGenerator, 'add_description', TemplateGenerator.set_description)
+setattr(TemplateGenerator, 'add_version', TemplateGenerator.set_version)
 
-    def __getitem__(self, key):
-        return getattr(self, key)
+def is_macro(x):
+	return False
+setattr(AWSObject, 'is_macro', is_macro)
 
-    def __setitem__(self, key, value):
-        setattr(self, key, value)
+def extract(x):
+	return list(x.data.values()).pop()
+setattr(AWSHelperFn, 'extract', extract)
 
-    def __iadd__(self, other):
-        for props in self:
-            key, value = props
-            if key.startswith('_') or key in ['version', 'transform']:
-                continue
+class TemplateLoaderCollection():
 
-            if key == 'description':
-                if value == '':
-                    continue
-                self[key] = "" if self[key] is None else self[key]
-                other[key] = "" if other[key] is None else other[key]
+	def __init__(self):
+		self.templates = {}
 
-                self[key] = "{} {}".format(self[key], other[key])
-            else:
-                self[key] = {**self[key], **other[key]}
-        return self
+	def __getitem__(self, key):
+		return self.templates[key]
 
-    @staticmethod
-    def __setattr(bucket, key, value):
-        if type(key) == int:
-            bucket[key] = value
-        if type(key) == str:
-            if hasattr(bucket, key):
-                setattr(bucket, key, value)
-            else:
-                bucket[key] = value
+	def __setitem__(self, key, value):
+		self.templates[key] = value
 
-    def to_json(self, keep_parameters=True):
-        json_string = super().to_json()
-        if keep_parameters:
-            return json_string
-        else:
-            json_obj = json.loads(json_string)
-            if 'Parameters' in json_obj:
-                del json_obj['Parameters']
-            return json.dumps(json_obj)
+	def __iter__(self):
+		for key in self.templates:
+			yield (key, *self.templates[key])
 
-    def to_yaml(self, keep_parameters=True):
-        json_string = self.to_json(keep_parameters)
-        return flip(json_string)
+	def update(self, data):
+		self.templates.update(data)
+
+	def get(self, key, default=None):
+		return self.templates.get(key, default)
+
+	def items(self):
+		return self.templates.items()
+
+	def contains(self, key):
+		return key in self.templates
+
+	def to_dict(self):
+		return self.templates

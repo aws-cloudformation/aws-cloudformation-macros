@@ -82,6 +82,7 @@ Resources:
       Environment:
         Variables:
           DEFAULT_BUCKET: !Ref DefaultBucket
+          LOG_LEVEL: 'INFO'
 
   Macro:
     Type: AWS::CloudFormation::Macro
