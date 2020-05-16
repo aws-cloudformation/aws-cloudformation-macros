@@ -4,7 +4,7 @@ Run arbitrary Python code in your CloudFormation templates.
 
 ## Basic Usage
 
-Place Python code as a literal bock anywhere in your template. The literal block will be replaced with the contents of
+Place Python code as a literal block anywhere in your template. The literal block will be replaced with the contents of
 the `output` variable defined in your code. There are several variables available to your code:
 
 - `params`: dict containing the contents of the templateParameterValues
