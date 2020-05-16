@@ -1,16 +1,16 @@
 # PyPlate
 
-Run arbitrary python code in your CloudFormation templates
+Run arbitrary Python code in your CloudFormation templates.
 
 ## Basic Usage
 
-Place python code as a literal bock anywhere in your template, the literal block will be replaced with the contents of
+Place Python code as a literal block anywhere in your template. The literal block will be replaced with the contents of
 the `output` variable defined in your code. There are several variables available to your code:
 
-params: dict containing the contents of the templateParameterValues
-template: dict containing the entire template
-account_id: AWS account ID
-region: AWS Region
+- `params`: dict containing the contents of the templateParameterValues
+- `template`: dict containing the entire template
+- `account_id`: AWS account ID
+- `region`: AWS region
 
 ```yaml
 AWSTemplateFormatVersion: "2010-09-09"
