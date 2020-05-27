@@ -41,15 +41,15 @@ This Macro uses [Troposphere](https://github.com/cloudtools/troposphere).
 
     ```shell
     aws cloudformation package \
-    --template-file example.yaml 
-    --s3-bucket <your bucket name here> \
-    --output-template-file example.output
+    	--template-file example.yaml 
+    	--s3-bucket <your bucket name here> \
+    	--output-template-file example.output
 
     aws cloudformation deploy \
-    --template-file ./example.output \
-    --stack-name TemplateExample \
-    --region $(REGION) \
-    --capabilities CAPABILITY_AUTO_EXPAND
+    	--template-file ./example.output \
+    	--stack-name TemplateExample \
+    	--region <select your region> \
+    	--capabilities CAPABILITY_AUTO_EXPAND
     ```
 
 
@@ -76,7 +76,7 @@ To declare this entity in your AWS CloudFormation template use the following syn
   	  "Mode": String,
   	  "Provider": String,
   	  "Repo": String,
-      "Project" : String,
+	  "Project" : String,
   	  "Branch": String,
   	  "Owner": String,
   	  "OAuthToken": String,
