@@ -40,9 +40,16 @@ This Macro uses [Troposphere](https://github.com/cloudtools/troposphere).
 5. To test out the macro's capabilities, try launching the provided example template:
 
     ```shell
+    aws cloudformation package \
+    --template-file example.yaml 
+    --s3-bucket <your bucket name here> \
+    --output-template-file example.output
+
     aws cloudformation deploy \
-        --stack-name template-macro-example \
-        --template-file example.yaml
+    --template-file ./example.output \
+    --stack-name TemplateExample \
+    --region $(REGION) \
+    --capabilities CAPABILITY_AUTO_EXPAND
     ```
 
 
