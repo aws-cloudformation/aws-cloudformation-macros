@@ -1,6 +1,6 @@
 # Template Macro
 
-The `Template` macro adds the ability to create CloudFormation resources from existing Cloudformation Templates. A typical use case for this macro might be to reuse Cloudformation configurations that let you manage a group of related resources as if they were a single resource.
+The `Template` macro adds the ability to create CloudFormation resources from existing Cloudformation Templates. You can reference templates that are saved both in Git Repository and S3 Bucket. A typical use case for this macro might be to reuse Cloudformation configurations that let you manage a group of related resources as if they were a single resource.
 
 You can recursive import Templates, Template::S3 and Template::Git are allowed in imported Cloudformation Templates.
 
@@ -16,7 +16,7 @@ This Macro uses [Troposphere](https://github.com/cloudtools/troposphere).
 2. Install all python requirements
 
     ```shell
-    pip install -r source/requirements.txt -t source
+    pip install -r source/requirements.txt -t source/libs
     ```
 
 3. Package the CloudFormation template. The provided template uses [the AWS Serverless Application Model](https://aws.amazon.com/about-aws/whats-new/2016/11/introducing-the-aws-serverless-application-model/) so must be transformed before you can deploy it.
@@ -44,7 +44,6 @@ This Macro uses [Troposphere](https://github.com/cloudtools/troposphere).
         --stack-name template-macro-example \
         --template-file example.yaml
     ```
-   You need to change BucketName parameter in example.yaml.
 
 
 # Custom Resources
