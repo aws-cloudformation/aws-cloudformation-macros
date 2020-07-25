@@ -1,0 +1,91 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  TransformExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [lambda.amazonaws.com]
+            Action: ['sts:AssumeRole']
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: ['logs:*']
+                Resource: 'arn:aws:logs:*:*:*'
+  TransformFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        ZipFile: |
+          import traceback
+          import json
+
+          #input_data can be a dictionary or a list
+          def get_keys(input_data, keys_list):
+              if isinstance(input_data, dict):
+                  for k, v in iter(sorted(input_data.items())):
+                      if isinstance(v, list):
+                          get_keys(v, keys_list)
+                      elif isinstance(v, dict):
+                          get_keys(v, keys_list)
+                      keys_list.append(k)   
+              elif isinstance(input_data, list):
+                  for i in input_data:
+                      if isinstance(i, list):
+                          get_keys(i, keys_list)
+                      elif isinstance(i, dict):
+                          get_keys(i, keys_list)
+              else:
+                  print ("Unexpected item format: {}".format(type(input_data)))
+              return keys_list
+                  
+          def handler(event, context):
+              print("Incoming Event: ", event)
+              response = {
+                  "requestId": event["requestId"],    
+                  "status": "success"
+              }
+              try:
+                  input = str(event["params"]["MapParameter"])
+                  input_key_string = str(event["params"]["Key"])
+                  input_keys = input_key_string.split('.')
+                  input_map = json.loads(input)
+                  valid_keys = []
+                  get_keys(input_map, valid_keys)
+
+                  for key in input_keys:
+                      if not key in valid_keys:
+                          response["status"] = "failure"
+                          response["errorMessage"] = f"Invalid key: {key}"
+                          return response
+                      input_map = input_map[key]
+                  print("Sending response back to CloudFormation %s" % input_map)
+                  response["fragment"] = input_map
+              except Exception as e:
+                  traceback.print_exc()
+                  response["status"] = "failure"
+                  response["errorMessage"] = str(e)
+              return response
+
+      Handler: index.handler
+      Runtime: python3.7
+      Role: !GetAtt TransformExecutionRole.Arn
+  TransformFunctionPermissions:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !GetAtt TransformFunction.Arn
+      Principal: 'cloudformation.amazonaws.com'
+  Transform:
+    Type: AWS::CloudFormation::Macro
+    Properties:
+      Name: 'Map'
+      Description: Provides various string processing functions
+      FunctionName: !GetAtt TransformFunction.Arn

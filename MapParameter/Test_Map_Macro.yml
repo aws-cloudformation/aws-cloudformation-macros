@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Test template for Map macro
+Parameters:
+  MapParameter:
+    Description: Enter the Map/JSON
+    Default: '{"K1": {"K2":{"K2":{"K2":"Nested"}}, "K3": {"K4": "V4"}}}'
+    Type: String
+Resources:
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      Tags:
+        - Key: Outer
+          Value:
+            'Fn::Transform':
+              - Name: Map
+                Parameters:
+                  MapParameter: !Ref MapParameter
+                  Key: K1.K2.K2.K2
+        - Key: Inner
+          Value:
+            'Fn::Transform':
+              - Name: Map
+                Parameters:
+                  MapParameter: !Ref MapParameter
+                  Key: K1.K3.K4
