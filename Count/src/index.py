@@ -1,7 +1,7 @@
 import copy
 import json
 
-def process_template(template):
+def process_template(template, params):
     new_template = copy.deepcopy(template)
     status = 'success'
 
@@ -9,6 +9,13 @@ def process_template(template):
         if 'Count' in resource:
             #Get the number of times to multiply the resource
             count = new_template['Resources'][name].pop('Count')
+
+            print('Count data type: {}'.format(type(count)))
+
+            if type(count) == dict:
+                count = int(params[count['Ref']])
+                print('Dict Count data type: {}'.format(type(count)))
+
             print("Found 'Count' property with value {} in '{}' resource....multiplying!".format(count,name))            
             #Remove the original resource from the template but take a local copy of it
             resourceToMultiply = new_template['Resources'].pop(name)
@@ -53,7 +60,11 @@ def multiply(resource_name, resource_structure, count):
 
 
 def handler(event, context):
-    result = process_template(event['fragment'])
+    params = event["templateParameterValues"]
+    fragment = event['fragment']
+    print("parameter values")
+    print(params)
+    result = process_template(fragment, params)
     return {
         'requestId': event['requestId'],
         'status': result[0],
