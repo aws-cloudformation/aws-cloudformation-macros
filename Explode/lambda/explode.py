@@ -12,37 +12,44 @@ EXPLODE_RE = re.compile(r'(?i)!Explode (?P<explode_key>\w+)')
 def walk_resource(resource, map_data):
     """Recursively process a resource."""
     new_resource = {}
-    for key, value in resource.items():
-        if isinstance(value, dict):
-            new_resource[key] = walk_resource(value, map_data)
-        elif isinstance(value, list):
-            new_resource[key] = [walk_resource(x, map_data) for x in value]
-        elif isinstance(value, str):
-            match = EXPLODE_RE.search(value)
-            while match:
-                explode_key = match.group('explode_key')
-                try:
-                    replace_value = map_data[explode_key]
-                except KeyError:
-                    print("Missing item {} in mapping while processing {}: {}".format(
-                        explode_key,
-                        key,
-                        value))
-                if isinstance(replace_value, int):
-                    value = replace_value
-                    # No further explosion is possible on an int
-                    match = None
-                else:
-                    value = value.replace(match.group(0), replace_value)
-                    match = EXPLODE_RE.search(value)
-            new_resource[key] = value
-        else:
-            new_resource[key] = value
+    if isinstance(resource, str):
+        match = EXPLODE_RE.search(resource)
+        while match:
+            explode_key = match.group('explode_key')
+            try:
+                replace_value = map_data[explode_key]
+            except KeyError:
+                print("Missing item {} in mapping while processing {}: {}".format(
+                    explode_key,
+                    resource,
+                    resource))
+            if isinstance(replace_value, int):
+                resource = replace_value
+                # No further explosion is possible on an int
+                match = None
+            else:
+                resource = resource.replace(match.group(0), replace_value)
+                match = EXPLODE_RE.search(resource)
+        new_resource = resource
+    elif isinstance(resource, list):
+        new_resource = [walk_resource(x, map_data) for x in resource]
+    else:            
+        for key, value in resource.items():
+            if isinstance(value, dict):
+                new_resource[key] = walk_resource(value, map_data)
+            elif isinstance(value, list):
+                new_resource[key] = [walk_resource(x, map_data) for x in value]
+            elif isinstance(value, str):
+                new_resource[key] = walk_resource(value, map_data)
+            else:
+                new_resource[key] = value
     return new_resource
 
+# See input and output below
 
 def handle_transform(template):
     """Go through template and explode resources."""
+    
     mappings = template['Mappings']
     resources = template['Resources']
     new_resources = {}
@@ -75,7 +82,7 @@ def handle_transform(template):
 
 
 def handler(event, _context):
-    """Handle invocation in Lambda (when CloudFormation processes the Macro)"""
+    """Handle invocation in Lambda (when CloudFormation processes the Macro)"""    
     fragment = event["fragment"]
     status = "success"
 
