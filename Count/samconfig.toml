@@ -1,0 +1,18 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+resolve_s3 = true
+stack_name = "Count-macro"
+s3_prefix = "Count-macro"
+capabilities = "CAPABILITY_IAM"
+template = "macro.yaml"
+
+[test]
+[test.deploy]
+[test.deploy.parameters]
+resolve_s3 = true
+stack_name = "Count-macro-test"
+s3_prefix = "Count-macro-test"
+capabilities = "CAPABILITY_IAM"
+template = "test.yaml"

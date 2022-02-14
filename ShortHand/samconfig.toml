@@ -1,0 +1,18 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+resolve_s3 = true
+stack_name = "ShortHand-macro"
+s3_prefix = "ShortHand-macro"
+capabilities = "CAPABILITY_IAM"
+template = "macro.yaml"
+
+[test]
+[test.deploy]
+[test.deploy.parameters]
+resolve_s3 = true
+stack_name = "ShortHand-macro-test"
+s3_prefix = "ShortHand-macro-test"
+capabilities = "CAPABILITY_IAM"
+template = "test.yaml"

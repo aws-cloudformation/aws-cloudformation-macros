@@ -1,0 +1,18 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+resolve_s3 = true
+stack_name = "ExecutionRoleBuilder-macro"
+s3_prefix = "ExecutionRoleBuilder-macro"
+capabilities = "CAPABILITY_IAM"
+template = "macro.yaml"
+
+[test]
+[test.deploy]
+[test.deploy.parameters]
+resolve_s3 = true
+stack_name = "ExecutionRoleBuilder-macro-test"
+s3_prefix = "ExecutionRoleBuilder-macro-test"
+capabilities = "CAPABILITY_IAM"
+template = "test.yaml"

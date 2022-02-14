@@ -1,0 +1,19 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Runtime: python3.9
+    CodeUri: lambda
+
+Resources:
+  MacroFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: macro.handler
+
+  Macro:
+    Type: AWS::CloudFormation::Macro
+    Properties:
+      Name: Explode
+      FunctionName: !GetAtt MacroFunction.Arn

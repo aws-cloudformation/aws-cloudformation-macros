@@ -14,7 +14,7 @@
 import boto3
 import os
 
-LAMBDA_ARN = os.environ["LAMBDA_ARN"]
+LAMBDA_ARN = os.environ.get("LAMBDA_ARN")
 
 s3_client = boto3.client("s3")
 
