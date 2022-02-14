@@ -1,7 +1,23 @@
-Transform:
-  - Count
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: Count
+
+Metadata:
+  cfn-lint:
+    config:
+      ignore_checks:
+        - E3001
+
 Resources:
   Bucket:
     Type: AWS::S3::Bucket
     Count: 3
 
+  BucketToCopy:
+    Type: AWS::S3::Bucket
+    Properties:
+      Tags:
+        - Key: TestKey
+          Value: my bucket %d
+        - Key: Another key
+          Value: "%d value"
+    Count: 3

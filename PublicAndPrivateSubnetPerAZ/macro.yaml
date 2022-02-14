@@ -1,0 +1,27 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    CodeUri: lambda
+    Runtime: python3.6
+          
+Resources:
+  MacroFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: macro.handler
+      Timeout: 60
+      Policies:
+        - Version: '2012-10-17' 
+          Statement:
+            - Effect: Allow
+              Action: ec2:DescribeAvailabilityZones
+              Resource: '*'
+
+  Macro:
+    Type: AWS::CloudFormation::Macro
+    Properties:
+      Name: CreateSubnetsPerAZ
+      Description: Macro to create Subnets for every available AZ
+      FunctionName: !GetAtt MacroFunction.Arn

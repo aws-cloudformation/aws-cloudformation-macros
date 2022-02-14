@@ -1,0 +1,26 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: tests String macro functions
+
+Metadata:
+  cfn-lint:
+    config:
+      ignore_checks:
+        - E3002
+        - W2001
+
+Parameters:
+  Tags:
+    Default: "Env=Prod,Application=MyApp,BU=ModernisationTeam"
+    Type: "CommaDelimitedList"
+
+Resources:
+  S3Bucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      Tags: |
+        #!PyPlate
+        output = []
+        for tag in params['Tags']:
+           key, value = tag.split('=')
+           output.append({"Key": key, "Value": value})
+Transform: [PyPlate]

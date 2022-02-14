@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Runtime: python3.9
+    CodeUri: lambda
+
+Resources:
+  MacroFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: macro.handler
+
+  # TransformFunctionPermissions:
+  #   Type: AWS::Lambda::Permission
+  #   Properties:
+  #     Action: 'lambda:InvokeFunction'
+  #     FunctionName: !GetAtt MacroFunction.Arn
+  #     Principal: 'cloudformation.amazonaws.com'
+
+  Transform:
+    Type: AWS::CloudFormation::Macro
+    Properties:
+      Name: !Sub PyPlate
+      Description: Processes inline python in templates
+      FunctionName: !GetAtt MacroFunction.Arn
+

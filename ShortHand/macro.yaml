@@ -1,0 +1,18 @@
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Runtime: python3.9
+    CodeUri: lambda
+
+Resources:
+  MacroFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: macro.handler
+
+  Macro:
+    Type: AWS::CloudFormation::Macro
+    Properties:
+      Name: ShortHand
+      FunctionName: !GetAtt MacroFunction.Arn

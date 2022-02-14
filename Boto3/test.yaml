@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: Boto3
+
+Metadata:
+  cfn-lint:
+    config:
+      ignore_checks:
+        - E3001
+
+Resources:
+  Repo:
+    Type: AWS::CodeCommit::Repository
+    Properties:
+      RepositoryName: my-repo
+
+  AddReadme:
+    Type: Boto3::CodeCommit.put_file
+    Mode: Create
+    Properties:
+      RepositoryName: !GetAtt Repo.Name
+      BranchName: master
+      FileContent: "Hello, world"
+      FilePath: README.md
+      CommitMessage: Add another README.md
+      Name: CloudFormation

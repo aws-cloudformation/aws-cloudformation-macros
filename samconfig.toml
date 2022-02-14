@@ -1,0 +1,9 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+resolve_s3 = true
+stack_name = "CF-Macros"
+s3_prefix = "CF-Macros"
+capabilities = ["CAPABILITY_IAM", "CAPABILITY_AUTO_EXPAND"]
+template = "all_macros.yaml"

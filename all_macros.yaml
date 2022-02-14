@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Runtime: python3.9
+    CodeUri: lambda
+
+Resources:
+  Boto3MacroStack:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: Boto3/macro.yaml
+
+  CountMacroStack:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: Count/macro.yaml
+
+  ExecutionRoleBuilderMacroStack:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: ExecutionRoleBuilder/macro.yaml
+
+  ExplodeMacroStack:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: Explode/macro.yaml
+
+  PublicAndPrivateSubnetPerAZMacroStack:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: PublicAndPrivateSubnetPerAZ/macro.yaml
+
+  PyPlateMacroStack:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: PyPlate/macro.yaml
+
+  S3ObjectsMacroStack:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: S3Objects/macro.yaml
+
+  ShortHandMacroStack:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: ShortHand/macro.yaml
+
+  StackMetricsMacroStack:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: StackMetrics/macro.yaml
+
+  StringFunctionsMacroStack:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: StringFunctions/macro.yaml
