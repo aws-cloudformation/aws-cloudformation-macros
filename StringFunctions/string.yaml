@@ -54,7 +54,9 @@ Resources:
                       elif "StripFrom" in event["params"]:
                           if event["params"]["StripFrom"] == "Left":
                               response["fragment"] = input[len(input)-length:]
-                          elif event["params"]["StripFrom"] != "Right":
+                          elif event["params"]["StripFrom"] == "Right":
+                              response["fragment"] = input[:length]
+                          else:
                               response["status"] = "failure"
                       else:
                           response["fragment"] = input[:length]
