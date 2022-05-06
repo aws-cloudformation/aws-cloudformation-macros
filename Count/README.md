@@ -123,12 +123,12 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform:
   - Count
 Parameters:
-    CountBucket:
-        Type: Number
-        Default: 2
-        MinValue: 1
-        MaxValue: 5
-        Description: 'Min 1, max 5'
+  CountBucket:
+    Type: Number
+    Default: 2
+    MinValue: 1
+    MaxValue: 5
+    Description: 'Min 1, max 5'
 Resources:
   BucketToCopy:
     Type: AWS::S3::Bucket
@@ -139,6 +139,7 @@ Resources:
         - Key: Another key
           Value: "%d value"
     Count: !Ref CountBucket
+
 
 ```
 
