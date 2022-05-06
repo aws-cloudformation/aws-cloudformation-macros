@@ -1,7 +1,7 @@
 import copy
 import json
 
-def process_template(template):
+def process_template(template, parameters):
     new_template = copy.deepcopy(template)
     status = 'success'
 
@@ -9,7 +9,10 @@ def process_template(template):
         if 'Count' in resource:
             #Get the number of times to multiply the resource
             count = new_template['Resources'][name].pop('Count')
-            print("Found 'Count' property with value {} in '{}' resource....multiplying!".format(count,name))            
+            print("Found 'Count' property with value {} in '{}' resource....multiplying!".format(count,name))
+            if isinstance(count, dict) and 'Ref' in count:
+                count = int(parameters[count['Ref']])
+                print('Count from ref: %i' % count)
             #Remove the original resource from the template but take a local copy of it
             resourceToMultiply = new_template['Resources'].pop(name)
             #Create a new block of the resource multiplied with names ending in the iterator and the placeholders substituted
@@ -46,14 +49,14 @@ def multiply(resource_name, resource_structure, count):
     resources = {}
     #Loop according to the number of times we want to multiply, creating a new resource each time
     for iteration in range(1, (count + 1)):
-        print("Multiplying '{}', iteration count {}".format(resource_name,iteration))        
+        print("Multiplying '{}', iteration count {}".format(resource_name,iteration))
         multipliedResourceStructure = update_placeholder(resource_structure,iteration)
         resources[resource_name+str(iteration)] = multipliedResourceStructure
     return resources
 
 
 def handler(event, context):
-    result = process_template(event['fragment'])
+    result = process_template(event['fragment'], event['templateParameterValues'])
     return {
         'requestId': event['requestId'],
         'status': result[0],

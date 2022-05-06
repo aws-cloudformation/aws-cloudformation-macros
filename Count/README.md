@@ -97,6 +97,8 @@ Resources:
           Value: my bucket 3
 ```
 
+
+
 ### Important - Naming resources
 
 You cannot use Count on resources that use a hardcoded name (`Name:` property). Duplicate names will cause a CloudFormation runtime failure.
@@ -110,6 +112,34 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
         BucketName: MyBucket%d
+```
+
+### Parameterize count
+
+You can specify the count through the parameters:
+
+```yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Transform:
+  - Count
+Parameters:
+    CountBucket:
+        Type: Number
+        Default: 2
+        MinValue: 1
+        MaxValue: 5
+        Description: 'Min 1, max 5'
+Resources:
+  BucketToCopy:
+    Type: AWS::S3::Bucket
+    Properties:
+      Tags:
+        - Key: TestKey
+          Value: my bucket %d
+        - Key: Another key
+          Value: "%d value"
+    Count: !Ref CountBucket
+
 ```
 
 ## Author
