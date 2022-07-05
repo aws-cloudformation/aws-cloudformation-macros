@@ -45,16 +45,21 @@ To create multiple copies of a resource, add a Count propert with an integer val
 ```yaml
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: Count
+Parameters:
+  HowMany:
+    Type: Number
+    Description: How many bucket
+    Default: 4
 Resources:
   Bucket:
     Type: AWS::S3::Bucket
-    Count: 3
-  SQS:
-    Type: AWS:::SQS::Queue
     Count: 2
+  BucketParam:
+    Type: AWS::S3::Bucket
+    Count: !Ref HowMany
 ```
 #### Note
-This will cause the resource "Bucket" to be multiplied 3 times. The new template will contain Bucket1, Bucket2 and Bucket3 but will not contain Bucket as this will be removed.
+This will cause the resource "Bucket" to be multiplied 2 times and the resouce BucketParam to be muliplied "HowMany" times. The new template will contain Bucket1, Bucket2, BucketParam1, BucketParam2, BucketParam3 and BucketParam4 but will not contain Bucket and BucketParam as these will be removed.
 
 ### Using decimal placeholders
 When resources are multiplied, you can put a decimal placeholder %d into any string value that you wish to be replaced with the iterator index number.

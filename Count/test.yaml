@@ -1,7 +1,17 @@
 Transform:
   - Count
+  
+Parameters:
+  HowMany:
+    Type: Number
+    Description: How many bucket
+    Default: 4
+
 Resources:
   Bucket:
     Type: AWS::S3::Bucket
-    Count: 3
+    Count: 2
 
+  MyBucket:
+    Type: AWS::S3::Bucket
+    Count: !Ref HowMany
