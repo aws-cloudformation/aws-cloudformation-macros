@@ -45,13 +45,18 @@ To create multiple copies of a resource, add a Count propert with an integer val
 ```yaml
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: Count
+Parameters:
+  HowMany:
+    Type: Number
+    Description: How many bucket
+    Default: 4
 Resources:
   Bucket:
     Type: AWS::S3::Bucket
-    Count: 3
-  SQS:
-    Type: AWS:::SQS::Queue
     Count: 2
+  BucketParam:
+    Type: AWS::S3::Bucket
+    Count: !Ref HowMany
 ```
 #### Note
 This will cause the resource "Bucket" to be multiplied 3 times. The new template will contain Bucket1, Bucket2 and Bucket3 but will not contain Bucket as this will be removed.
