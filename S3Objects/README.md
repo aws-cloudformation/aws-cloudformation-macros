@@ -134,6 +134,20 @@ The `Source` property has the following sub-properties:
 
 * `Key` (REQUIRED): The key of the S3 object that will be copied
 
+## Tests
+
+Python unit testing is available via pytest. To run the tests, first install the
+required test dependencies:
+
+```shell
+pip3 install -r requirements-dev.txt
+```
+
+The unit tests can be run with the command:
+```shell
+python3 -m pytest -v unit-tests/
+```
+
 ## Author
 
 [Steve Engledow](https://linkedin.com/in/stilvoid)  
