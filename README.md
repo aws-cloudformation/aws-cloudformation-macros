@@ -1,5 +1,9 @@
 # AWS CloudFormation Macros
 
+## NOTE that this repository is being archived in favor of similar content located here: 
+
+https://github.com/aws-cloudformation/aws-cloudformation-templates/tree/main/aws/services/CloudFormation/MacrosExamples
+
 This repository hosts examples of AWS CloudFormation macros.
 
 ## Contents
